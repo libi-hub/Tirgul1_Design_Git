@@ -58,6 +58,16 @@ import javax.swing.table.TableColumn;
 import javax.swing.ListSelectionModel;
 import java.awt.SystemColor;
 
+import java.io.FileOutputStream;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
 
 
 
@@ -137,7 +147,7 @@ public class FrmOrders extends RootLayout {
 
         tfEmployeeID.setDocument(new JTextFieldLimiter(Employee.MAX_FNAME));
  		pnlActionBtn = new JPanel();
- 		pnlActionBtn.setBounds(21, 400, 607, 33);
+ 		pnlActionBtn.setBounds(21, 400, 759, 33);
 		tfNavigation.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		tfNavigation.setText("showing X of Y");
 		tfNavigation.setColumns(6);
@@ -162,11 +172,13 @@ public class FrmOrders extends RootLayout {
         btnSave.setEnabled(inAddMode);
 
         btnAdd.setFont(new Font("Tahoma", Font.PLAIN, 10));
-
+        btnToPDF.setFont(new Font("Tahoma", Font.PLAIN, 10));
+        
         btnRemove.setFont(new Font("Tahoma", Font.PLAIN, 10));
         pnlActionBtn.add(btnRemove);
         btnRemove.setEnabled(!inAddMode);
         pnlActionBtn.add(btnAdd);
+        pnlActionBtn.add(btnToPDF);
         btnAdd.setEnabled(!inAddMode);
 
 
@@ -337,6 +349,72 @@ public class FrmOrders extends RootLayout {
         		btnAddOnClick(e);
         	}
         });
+		btnToPDF.addActionListener(new ActionListener() {
+			// Helper method to style table cells easily
+			private void addTableCell(PdfPTable table, String label, String value) {
+			    PdfPCell cellLabel = new PdfPCell(new Phrase(label, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+			    PdfPCell cellValue = new PdfPCell(new Phrase(value.isEmpty() ? "N/A" : value, FontFactory.getFont(FontFactory.HELVETICA, 12)));
+			    
+			    // Add minor padding for look and feel
+			    cellLabel.setPadding(8);
+			    cellValue.setPadding(8);
+			    
+			    table.addCell(cellLabel);
+			    table.addCell(cellValue);
+			}
+			public void actionPerformed(ActionEvent e) {
+			    // 1. Initialize the iText Document
+			    Document document = new Document();
+			    
+			    try {
+			        // Define the output file name (saves in your project root folder)
+			        String fileName = "Order_" + tfOrderID.getText().trim() + "_Details.pdf";
+			        PdfWriter.getInstance(document, new FileOutputStream(fileName));
+			        
+			        // 2. Open the document for writing
+			        document.open();
+			        
+			        // 3. Add a Title
+			        Paragraph title = new Paragraph("Order Details Report", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18));
+			        title.setAlignment(Element.ALIGN_CENTER);
+			        title.setSpacingAfter(20);
+			        document.add(title);
+			        
+			        // 4. Create a clean 2-column table for the form fields
+			        PdfPTable table = new PdfPTable(2);
+			        table.setWidthPercentage(100);
+			        table.setSpacingBefore(10);
+			        table.setSpacingAfter(20);
+			        
+			        // Helper block to add key-value pairs to the table
+			        addTableCell(table, "Order ID:", tfOrderID.getText());
+			        addTableCell(table, "Customer ID:", tfCustomerID.getText());
+			        addTableCell(table, "Employee ID:", tfEmployeeID.getText());
+			        addTableCell(table, "Navigation Status:", tfNavigation.getText());
+			        
+			        document.add(table);
+			        
+			        // 5. Add a footer or status note
+			        Paragraph footer = new Paragraph("Generated automatically from Order Details system.", 
+			                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10));
+			        footer.setAlignment(Element.ALIGN_LEFT);
+			        document.add(footer);
+			        
+			        // Show success message to the user
+//			        javax.swing.JOptionPane.showMessageDialog(this, "PDF successfully created: " + fileName);
+			        
+			    } catch (Exception ex) {
+			        ex.printStackTrace();
+//			        javax.swing.JOptionPane.showMessageDialog(this, "Error generating PDF: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+			    } finally {
+			        // 6. Close the document cleanly
+			        if (document != null) {
+			            document.close();
+			        }
+			    }
+			}
+
+		});
 
 	}
 
@@ -813,6 +891,7 @@ public class FrmOrders extends RootLayout {
 	private JButton btnLast = new JButton(">|");
 	private final JButton btnSave = new JButton("Save");
 	private final JButton btnAdd = new JButton("Add New");
+	private final JButton btnToPDF = new JButton("export to pdf");
 	private final JButton btnRemove = new JButton("Delete");
 	private JPanel pnlActionBtn;
 	private JTextField tfSearch;

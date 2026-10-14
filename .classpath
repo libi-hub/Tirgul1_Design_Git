@@ -14,5 +14,7 @@
 	<classpathentry kind="lib" path="lib/UCanAccess-5.0.1.bin/ucanaccess-5.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/guava-19.0.jar"/>
 	<classpathentry kind="lib" path="lib/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/USER/Downloads/itextpdf-5.5.13.6.jar"/>
+	<classpathentry kind="lib" path="lib/itextpdf-5.5.13.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
